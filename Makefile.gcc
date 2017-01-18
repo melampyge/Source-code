@@ -1,0 +1,40 @@
+.PHONY: all allclean clean
+
+CC=gcc
+CXX=g++
+
+OBJS= main.o bc_func.o verlet.o io_func.o model.o divdeath.o pressure.o shutdown.o verletlist.o basics.o mtrand.o debug.o localstress.o
+
+LD=g++
+
+CFLAGS= -fopenmp -O3 $(INCLUDES)
+CXXFLAGS= $(CFLAGS) 
+LDFLAGS= -fopenmp
+#LDFLAGS=
+
+all: cell_dpd
+
+#verlet.o: verlet.cpp
+#	$(CXX) $(CXXFLAGS) -c -openmp -o verlet.o verlet.cpp
+#	$(CXX) $(CXXFLAGS) -c -o verlet.o verlet.cpp
+
+#pressure.o: pressure.cpp
+#	$(CXX) $(CXXFLAGS) -c -openmp -o pressure.o pressure.cpp
+
+cell_dpd: $(OBJS)
+	$(LD) $(LDFLAGS) -o $@ $(OBJS) 
+
+debug: CXX += -g
+debug: CC += -g
+debug: cell_dpd
+	
+clean:
+	rm -f *.o lock.dat
+
+allclean:
+	rm -f *.o cell_dpd lock.dat *~ *.dat *.xyz
+
+new: | allclean all clean
+
+newd: | allclean debug clean
+

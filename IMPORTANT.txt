@@ -1,0 +1,6 @@
+Important notes:
+  -> Center of mass (COM) is calculated in real coordinates. For PBC this could be wrong
+     depending on what you want (fold coordinates back into unit cell)
+  -> In order to keep everything as parallel as possible, most measurement variables are actually
+     arrays with size TARGETNUMTHREADS, which are then summed up in a single region in main
+
