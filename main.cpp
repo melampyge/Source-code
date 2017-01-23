@@ -161,9 +161,9 @@ int main(int argc, char *argv[])
   /////////////////////////////////////
   // start velocity verlet algorithm //
   /////////////////////////////////////
-  for (count = (long)(curtime/dt+1); count < _ceil(tend/dt); count++) {  // loop time steps
+  for (count = (long)(curtime/dt+1); lastcn<50000; count++) {  // loop time steps
     curtime = count*dt;
-
+    
 //#ifdef __DEBUG
     if (count%1000==0) {
       cout << "t=" << curtime << ": lastcn=" << lastcn << ": lastn=" << lastn
@@ -840,16 +840,16 @@ int initialize()
 
 
   {
-    _rx[0] = LX/2.;
-    _ry[0] = LY/2.;
-    _rz[0] = LZ/2.;
-    double initdist = 0.4;
+    double initdist = 0.2;
     tmpx = (drand[0]()*initdist*2.-initdist)/sqrt(3);
     tmpy = (drand[0]()*initdist*2.-initdist)/sqrt(3);
     tmpz = sqrt(initdist*initdist-tmpx*tmpx-tmpy*tmpy);
-    _rx[1] = LX/2. + tmpx;
-    _ry[1] = LY/2. + tmpy;
-    _rz[1] = LZ/2. + tmpz;
+    _rx[0] = LX/2;
+    _ry[0] = LY/2;
+    _rz[0] = 0.3 + tmpz;
+    _rx[1] = LX/2 + tmpx;
+    _ry[1] = LY/2 + tmpy;
+    _rz[1] = 0.3 - tmpz;
 
     _vx[0] = _vy[0] = _vz[0] = 0.;
     _vx[1] = _vy[1] = _vz[1] = 0.;

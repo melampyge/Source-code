@@ -307,13 +307,16 @@ int allocate_init_arrays()
     rt     = new double[MAXSPECNUM*MAXSPECNUM];
     rc     = new double[MAXSPECNUM*MAXSPECNUM];
     rct    = new double[MAXSPECNUM*MAXSPECNUM];
+    rz	   = new double[MAXSPECNUM*MAXSPECNUM];
     b      = new double[MAXSPECNUM*MAXSPECNUM];
     gammac = new double[MAXSPECNUM*MAXSPECNUM];
     gammat = new double[MAXSPECNUM*MAXSPECNUM];
     gammab = new double[MAXSPECNUM*MAXSPECNUM];
+    gammas = new double[MAXSPECNUM*MAXSPECNUM];
     ka     = new double[MAXSPECNUM*MAXSPECNUM];
     f0     = new double[MAXSPECNUM*MAXSPECNUM];
     f1     = new double[MAXSPECNUM*MAXSPECNUM];
+    fa	   = new double[MAXSPECNUM*MAXSPECNUM];
     m      = new double[MAXSPECNUM*MAXSPECNUM];
 
     randf_prefc = new double[MAXSPECNUM*MAXSPECNUM];
@@ -339,13 +342,16 @@ int allocate_init_arrays()
         rt[i*MAXSPECNUM+j] = RT;
         rc[i*MAXSPECNUM+j] = RC;
         rct[i*MAXSPECNUM+j] = RCT;
+	rz[i*MAXSPECNUM+j] = RZ;
         b[i*MAXSPECNUM+j] = B;
         gammac[i*MAXSPECNUM+j] = GAMMAC;
         gammat[i*MAXSPECNUM+j] = GAMMAT;
         gammab[i*MAXSPECNUM+j] = GAMMAB;
+	gammas[i*MAXSPECNUM+j] = GAMMAS;
         ka[i*MAXSPECNUM+j] = KA;
         f0[i*MAXSPECNUM+j] = F0;
         f1[i*MAXSPECNUM+j] = F1;
+	fa[i*MAXSPECNUM+j] = FA;
         m[i*MAXSPECNUM+j] = MASS;
       }
       else {
@@ -354,13 +360,16 @@ int allocate_init_arrays()
         rt[i*MAXSPECNUM+j] = RT;
         rc[i*MAXSPECNUM+j] = RC;
         rct[i*MAXSPECNUM+j] = RCT;
+	rz[i*MAXSPECNUM+j] = RZ;
         b[i*MAXSPECNUM+j] = B;
         gammac[i*MAXSPECNUM+j] = GAMMAC;
         gammat[i*MAXSPECNUM+j] = GAMMAT;
         gammab[i*MAXSPECNUM+j] = GAMMAB;
+	gammas[i*MAXSPECNUM+j] = GAMMAS;
         ka[i*MAXSPECNUM+j] = KA;
         f0[i*MAXSPECNUM+j] = F0;
         f1[i*MAXSPECNUM+j] = F1;
+	fa[i*MAXSPECNUM+j] = FA;
         m[i*MAXSPECNUM+j] = MASS;
       }
       randf_prefc[i*MAXSPECNUM+j] = sqrt(2.*gammac[i*MAXSPECNUM+j]*kbt/dt);
@@ -380,6 +389,7 @@ int allocate_init_arrays()
     f1[i*MAXSPECNUM+gas_spec] = f1[gas_spec*MAXSPECNUM+i] = 0.;
     gammac[i*MAXSPECNUM+gas_spec] = gammac[gas_spec*MAXSPECNUM+i] = 0.;
     gammat[i*MAXSPECNUM+gas_spec] = gammat[gas_spec*MAXSPECNUM+i] = 0.;
+    gammas[i*MAXSPECNUM+gas_spec] = gammas[gas_spec*MAXSPECNUM+i] = 0.;
     randf_prefc[i*MAXSPECNUM+gas_spec] = randf_prefc[gas_spec*MAXSPECNUM+i] = 0.;
     randf_preft[i*MAXSPECNUM+gas_spec] = randf_preft[gas_spec*MAXSPECNUM+i] = 0.;
   }
