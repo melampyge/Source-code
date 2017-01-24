@@ -460,24 +460,11 @@ void calcbackgroundforces(long i)
 void calcbackgroundfd(long i)
 {
   int index = _spec[i];
-  double z;
-  double rz_=rz[index];
-  ////////////////////////////////////
-  // calculate z position
-  z=zpos(i);
   ////////////////////////////////////
   // background dissipation force
   _fdx[i] += -gammab[index]*_vx[i];
   _fdy[i] += -gammab[index]*_vy[i];
   _fdz[i] += -gammab[index]*_vz[i];
-
-  ///////////////////////////////////
-  //Substrate force and friction
-
-  if(z<rz_) {
-  _fdz[i] += -fa[index*MAXSPECNUM+index];
-  _fdx[i] += -gammas[index]*_vx[i];
-  _fdy[i] += -gammas[index]*_vy[i];
-  }
 }
+
 
