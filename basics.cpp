@@ -199,15 +199,15 @@ int allocate_init_arrays()
     std::fill(flux_vr, flux_vr+dens_length, 0.);
     std::fill(flux_p_vr, flux_p_vr+dens_length, 0.);
  #elif defined (ZYLINDRICAL)
-    flux_vr	 = new double[dens_length_r];
-    flux_p_vr	 = new double[dens_length_r];
-    flux_vz	 = new double[dens_length_z];
-    flux_p_vz	 = new double[dens_length_z];
+    flux_vr	 = new double[dens_length_r*dens_length_z];
+    flux_p_vr	 = new double[dens_length_r*dens_length_z];
+    flux_vz	 = new double[dens_length_r*dens_length_z];
+    flux_p_vz	 = new double[dens_length_r*dens_length_z];
     
-    std::fill(flux_vr, flux_vr+dens_length_r, 0.);
-    std::fill(flux_vz, flux_vz+dens_length_z, 0.);
-    std::fill(flux_p_vr, flux_p_vr+dens_length_r, 0.);
-    std::fill(flux_p_vz, flux_p_vz+dens_length_z, 0.);
+    std::fill(flux_vr, flux_vr+dens_length_r*dens_length_z, 0.);
+    std::fill(flux_vz, flux_vz+dens_length_r*dens_length_z, 0.);
+    std::fill(flux_p_vr, flux_p_vr+dens_length_r*dens_length_z, 0.);
+    std::fill(flux_p_vz, flux_p_vz+dens_length_r*dens_length_z, 0.);
  #endif
  #ifdef REALFLUX
     rflux_jz     = new long[dens_length];

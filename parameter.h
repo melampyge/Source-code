@@ -13,7 +13,7 @@
 #define VLISTINITSIZE VLIST_MES*INITSIZE	// initial vlist size
 
 #define MAXSPECNUM 2		// maximum number of species
-#define TARGETNUMTHREADS 16	// try to get this many threads
+#define TARGETNUMTHREADS 8	// try to get this many threads
 
 
 #define RPP 1.	 		// range of pair potential
@@ -76,7 +76,7 @@
 
 ////////////////////////////////////
 // to enable pressure measurement uncomment #define PMEASUREMENT
-#define PMEASUREMENT
+//#define PMEASUREMENT
 
 #ifdef PMEASUREMENT
 
@@ -129,7 +129,7 @@
 // for now makes only sense for RECTANGULAR
 // IMPORTANT: Pressure is measured, not stress!!!!
 // for stress multiply results with -1.
-#define LOCALSTRESS
+//#define LOCALSTRESS
 
 #ifdef LOCALSTRESS
  ///////////////////////////////////
@@ -190,9 +190,9 @@
 // uncomment one of these to implement the according boundary condition
 
 //#define PBC		// Periodic boundary condition
-//#define BBC		// Bounce back boundary condition
+#define BBC		// Bounce back boundary condition
 //#define RBC		// Reflective boundary condition
-#define HBC		// Hybrid boundary condition, adjust all HBC blocks to your specific needs
+//#define HBC		// Hybrid boundary condition, adjust all HBC blocks to your specific needs
 			// (normaly a combination of the 3 above)
 			// default: periodic in x/y and bounce back in z direction
 

@@ -376,103 +376,103 @@ void output_density()
     vol_i = 3.1415926536*dens_binsize_z*dens_binsize_r*dens_binsize_r*((j+1)*(j+1)-j*j);
     area_i = 2*3.1415926536*dens_binsize_r*dens_binsize_z*j;
   #endif
-    fdens << curtime << "\t" << j*dens_binsize_r + i*dens_length_r*dens_binsize_r;		// 1, 2
+    fdens << curtime << "\t" << j*dens_binsize_r << "\t" << i*dens_binsize_z;		// 1, 2, 3
         if (dens_nmeas[j + i*dens_length_r] > 0 && vol_i > 0.) {
 	    rho_i = (double)dens_rhoV[j + i*dens_length_r]/(vol_i*dens_nmeas[j + i*dens_length_r]);
-      fdens << "\t" << setprecision(12) << rho_i;		// 3
+      fdens << "\t" << setprecision(12) << rho_i;		// 4
     }
     else {
       rho_i = 0.;
-      fdens << "\t" << rho_i;				// 3
+      fdens << "\t" << rho_i;				// 4
     }
     //////////////////////////////////////
     // kd/ka measurement does only make sense, when there are any cells at all
-    if (dens_rhoV[j + i*dens_length_r] > 0) 					// 4
+    if (dens_rhoV[j + i*dens_length_r] > 0) 					// 5
       fdens << "\t" << setprecision(12) << (double)dens_nkd[j + i*dens_length_r]/(dens_rhoV[j + i*dens_length_r]*dt);	// nkd/(rho*LX*LY*dens_binsize*dt)
     else
-      fdens << "\t" << -0.;					// 4
-    if (dens_rhoV[j + i*dens_length_r]+dens_nka[j + i*dens_length_r] > 0)				// 5
+      fdens << "\t" << -0.;					// 5
+    if (dens_rhoV[j + i*dens_length_r]+dens_nka[j + i*dens_length_r] > 0)				// 6
       fdens << "\t" << setprecision(12) << (double)dens_nka[j + i*dens_length_r]/((dens_rhoV[j + i*dens_length_r]+dens_nka[j + i*dens_length_r])*dt);
-    else							// 5
+    else							// 6
       fdens << "\t" << -0.;
-    fdens << "\t" << dens_nmeas[j + i*dens_length_r];				// 6
-    if (dens_nkd[j + i*dens_length_r] > 0) {					// 7, 8
+    fdens << "\t" << dens_nmeas[j + i*dens_length_r];				// 7
+    if (dens_nkd[j + i*dens_length_r] > 0) {					// 8, 9
       fdens << "\t" << dens_kpara[j + i*dens_length_r]/dens_nkd[j + i*dens_length_r]
                 << "\t" << dens_kperp[j + i*dens_length_r]/dens_nkd[j + i*dens_length_r];
     }
-    else							// 7, 8
+    else							// 8, 9
       fdens << "\t" << 0.0 << "\t" << 0.0;
 
     if (dens_nmeas[j + i*dens_length_r] > 0 && vol_i > 0.)
-      fdens << "\t" << dens_rhoVsq[j + i*dens_length_r]/(vol_i*vol_i*dens_nmeas[j + i*dens_length_r]);	// 9
+      fdens << "\t" << dens_rhoVsq[j + i*dens_length_r]/(vol_i*vol_i*dens_nmeas[j + i*dens_length_r]);	// 10
     else
-      fdens << "\t" << 0.;					// 9
+      fdens << "\t" << 0.;					// 10
 
-    fdens << "\t" << dens_mean_maxz/DENSDATASTEP;		// 10
+    fdens << "\t" << dens_mean_maxz/DENSDATASTEP;		// 11
     if (dens_lastmean_maxz > 0.)
-      fdens << "\t" << (dens_mean_maxz-dens_lastmean_maxz)/(dt*DENSDATASTEP*DENSDATASTEP);	// 11
+      fdens << "\t" << (dens_mean_maxz-dens_lastmean_maxz)/(dt*DENSDATASTEP*DENSDATASTEP);	// 12
     else
-      fdens << "\t" << 0.;					// 11
-    fdens << "\t" << dens_mean_p_maxz/DENSDATASTEP;		// 12
+      fdens << "\t" << 0.;					// 12
+    fdens << "\t" << dens_mean_p_maxz/DENSDATASTEP;		// 13
     if (dens_lastmean_p_maxz > 0.)
-      fdens << "\t" << (dens_mean_p_maxz-dens_lastmean_p_maxz)/(dt*DENSDATASTEP*DENSDATASTEP);	// 13
+      fdens << "\t" << (dens_mean_p_maxz-dens_lastmean_p_maxz)/(dt*DENSDATASTEP*DENSDATASTEP);	// 14
     else
-      fdens << "\t" << 0.;					// 13
+      fdens << "\t" << 0.;					// 14
 
-    fdens << "\t" << dens_mean_minz/DENSDATASTEP;		// 14
+    fdens << "\t" << dens_mean_minz/DENSDATASTEP;		// 15
     if (dens_lastmean_minz > 0.)
-      fdens << "\t" << (dens_mean_minz-dens_lastmean_minz)/(dt*DENSDATASTEP*DENSDATASTEP);	// 15
+      fdens << "\t" << (dens_mean_minz-dens_lastmean_minz)/(dt*DENSDATASTEP*DENSDATASTEP);	// 16
     else
-      fdens << "\t" << 0.;					// 15
-    fdens << "\t" << dens_mean_p_minz/DENSDATASTEP;		// 16
+      fdens << "\t" << 0.;					// 16
+    fdens << "\t" << dens_mean_p_minz/DENSDATASTEP;		// 17
     if (dens_lastmean_p_minz > 0.)
-      fdens << "\t" << (dens_mean_p_minz-dens_lastmean_p_minz)/(dt*DENSDATASTEP*DENSDATASTEP);	// 17
+      fdens << "\t" << (dens_mean_p_minz-dens_lastmean_p_minz)/(dt*DENSDATASTEP*DENSDATASTEP);	// 18
     else
-      fdens << "\t" << 0.;					// 17
+      fdens << "\t" << 0.;					// 18
 
-    if (dens_knmeas[j + i*dens_length_r] > 0)					// 18, 19
+    if (dens_knmeas[j + i*dens_length_r] > 0)					// 19, 20
       fdens << "\t" << dens_kd[j + i*dens_length_r]/(dens_knmeas[j + i*dens_length_r]*dt) << "\t" << dens_ka[j + i*dens_length_r]/(dens_knmeas[j + i*dens_length_r]*dt);
     else
       fdens << "\t" << -0. << "\t" << -0.;
 
-    if (dens_nkd[j + i*dens_length_r] > 0) {					// 20
+    if (dens_nkd[j + i*dens_length_r] > 0) {					// 21
       fdens << "\t" << dens_sq[j + i*dens_length_r]/dens_nkd[j + i*dens_length_r];
     }
-    else							// 20
+    else							// 21
       fdens << "\t" << -0.0;
 
     // We output the average flow not velocity here:
     // sum v_i/(#meas*V)=N*<v>/(#meas*V)=<v>*rho=J
-    if (dens_nmeas[j + i*dens_length_r] > 0 && vol_i > 0.) {			// 21, 22, 23
+    if (dens_nmeas[j + i*dens_length_r] > 0 && vol_i > 0.) {			// 22, 23, 24
       fdens << "\t" << 0.0
 		<< "\t" << flux_vr[j + i*dens_length_r]/(dens_nmeas[j + i*dens_length_r]*vol_i)
                 << "\t" << flux_vz[j + i*dens_length_r]/(dens_nmeas[j + i*dens_length_r]*vol_i);
     }
-    else							// 21, 22, 23
+    else							// 22, 23, 24
       fdens << "\t" << 0.0 << "\t" << 0.0 << "\t" << 0.0;
-    if (dens_p_nmeas[j + i*dens_length_r] > 0 && vol_i > 0.) {			// 24, 25, 26
+    if (dens_p_nmeas[j + i*dens_length_r] > 0 && vol_i > 0.) {			//  25, 26, 27
       fdens << "\t" << 0.0
                 << "\t" << flux_p_vr[j + i*dens_length_r]/(dens_p_nmeas[j + i*dens_length_r]*vol_i)
                 << "\t" << flux_p_vz[j + i*dens_length_r]/(dens_p_nmeas[j + i*dens_length_r]*vol_i);
     }
-    else							// 24, 25, 26
+    else							//  25, 26, 27
       fdens << "\t" << 0.0 << "\t" << 0.0 << "\t" << 0.0;
-    if (dens_rhoV[j + i*dens_length_r] > 0) 					// 27
-      fdens << "\t" << setprecision(12) << dens_cell_sq[j + i*dens_length_r]/dens_rhoV[j + i*dens_length_r];
-    else
-      fdens << "\t" << -0.;					// 27
     if (dens_rhoV[j + i*dens_length_r] > 0) 					// 28
-      fdens << "\t" << setprecision(12) << dens_mean_cell_dr[j + i*dens_length_r]/dens_rhoV[j + i*dens_length_r];
+      fdens << "\t" << setprecision(12) << dens_cell_sq[j + i*dens_length_r]/dens_rhoV[j + i*dens_length_r];
     else
       fdens << "\t" << -0.;					// 28
     if (dens_rhoV[j + i*dens_length_r] > 0) 					// 29
-      fdens << "\t" << setprecision(12) << dens_mean_NN_dr[j + i*dens_length_r]/dens_rhoV[j + i*dens_length_r];
+      fdens << "\t" << setprecision(12) << dens_mean_cell_dr[j + i*dens_length_r]/dens_rhoV[j + i*dens_length_r];
     else
       fdens << "\t" << -0.;					// 29
+    if (dens_rhoV[j + i*dens_length_r] > 0) 					// 30
+      fdens << "\t" << setprecision(12) << dens_mean_NN_dr[j + i*dens_length_r]/dens_rhoV[j + i*dens_length_r];
+    else
+      fdens << "\t" << -0.;					// 30
 
   #ifdef REALFLUX
     if (area_i > 0.)
-      fdens << "\t" << (double)rflux_jz[j + i*dens_length_r]/(area_i*DENSDATASTEP*dt);	// 30
+      fdens << "\t" << (double)rflux_jz[j + i*dens_length_r]/(area_i*DENSDATASTEP*dt);	// 31
     else
       fdens << "\t" << 0.;	                                // 30
   #endif
