@@ -60,16 +60,13 @@ double *r0;
 double *rt;
 double *rc;
 double *rct;
-double *rz;
 double *b;
 double *gammac;
 double *gammat;
 double *gammab;
-double *gammas;
 double *ka;
 double *f0;
 double *f1;
-double *fa;
 double *m;				// mass of particles
 
 

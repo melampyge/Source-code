@@ -161,9 +161,9 @@ int main(int argc, char *argv[])
   /////////////////////////////////////
   // start velocity verlet algorithm //
   /////////////////////////////////////
-  for (count = (long)(curtime/dt+1); lastcn<50000; count++) {  // loop time steps
+  for (count = (long)(curtime/dt+1); count < _ceil(tend/dt); count++) {  // loop time steps
     curtime = count*dt;
-    
+
 //#ifdef __DEBUG
     if (count%1000==0) {
       cout << "t=" << curtime << ": lastcn=" << lastcn << ": lastn=" << lastn
@@ -351,8 +351,10 @@ int main(int argc, char *argv[])
                         ) continue;
       if ((_rz[i*_pperc]+_rz[i*_pperc+1])/2. > dens_maxz)
         dens_maxz = (_rz[i*_pperc]+_rz[i*_pperc+1])/2.;
-      if ((NORM(_rx[i*_pperc]-dens_com_rx,_ry[i*_pperc]-dens_com_ry, 0.) + NORM(_rx[i*_pperc+1]-dens_com_rx,_ry[i*_pperc+1]-dens_com_ry, 0.))/2. > dens_maxr)
-        dens_maxr = (NORM(_rx[i*_pperc]-dens_com_rx,_ry[i*_pperc]-dens_com_ry, 0.) + NORM(_rx[i*_pperc+1]-dens_com_rx,_ry[i*_pperc+1]-dens_com_ry, 0.))/2.;
+      if ((NORM(_rx[i*_pperc]-dens_com_rx,_ry[i*_pperc]-dens_com_ry, 0.) + NORM(_rx[i*_pperc+1]-dens_com_rx,_ry[i*_pperc+1]-dens_com_ry, 0.))/2. > dens_maxr) {
+	  if((NORM(_rx[i*_pperc]-dens_com_rx,_ry[i*_pperc]-dens_com_ry, 0.) + NORM(_rx[i*_pperc+1]-dens_com_rx,_ry[i*_pperc+1]-dens_com_ry, 0.))/2. < BOXLENGTH_X/2)
+	    dens_maxr = (NORM(_rx[i*_pperc]-dens_com_rx,_ry[i*_pperc]-dens_com_ry, 0.) + NORM(_rx[i*_pperc+1]-dens_com_rx,_ry[i*_pperc+1]-dens_com_ry, 0.))/2.;
+      }
       if ((_rz[i*_pperc]+_rz[i*_pperc+1])/2. < dens_minz)
         dens_minz = (_rz[i*_pperc]+_rz[i*_pperc+1])/2.;
       for (k=i*_pperc; k < (i+1)*_pperc; ++k) {
@@ -384,8 +386,8 @@ int main(int argc, char *argv[])
       int __index = GET__INDEX(i, dens_binsize);		// see basics.h
       __ASSERT(__index, 0, dens_length, "__index in main()");
  #elif defined (ZYLINDRICAL)
-       int __index = GET__INDEX_P_R(i, dens_binsize_r) + GET__INDEX_P_Z(i, dens_binsize_z)*dens_length_r;	// see basics.h
-      __ASSERT(__index, 0, dens_length_z*dens_length_r, "__index in main()")
+       int __index = GET__INDEX_R(i, dens_binsize_r) + GET__INDEX_Z(i, dens_binsize_z)*dens_length_r;	// see basics.h
+      __ASSERT(__index, 0, dens_length_z*dens_length_r, "__index in main()");
  #endif
       dens_rhoV[__index]++;
       dens_rhoVsqtmp[__index]++;
@@ -539,20 +541,20 @@ int main(int argc, char *argv[])
       dens_lastmean_p_minz = dens_mean_p_minz;
       dens_mean_p_minz = 0.;
  #elif defined (ZYLINDRICAL)
-    for (i = 0; i < dens_maxz/dens_binsize_z+1; ++i) {
-	for(j = 0; j < dens_maxr/dens_binsize_r+1; ++j) {
+    for (i = 0; i <= dens_maxz/dens_binsize_z; ++i) {
+	for(j = 0; j <= dens_maxr/dens_binsize_r; ++j) {
 	    dens_rhoVsq[j + i*dens_length_r] += dens_rhoVsqtmp[j + i*dens_length_r]*dens_rhoVsqtmp[j + i*dens_length_r];
 	}
     }
     ///////////////////////////////////
-    // count which z values have been reached and measured
-    for (i = 0; i < dens_maxz/dens_binsize_z+1; ++i) {
-	for(j = 0; j < dens_maxr/dens_binsize_r+1; ++j) {
+    // count which z and r values have been reached and measured
+    for (i = 0; i <= dens_maxz/dens_binsize_z; ++i) {
+	for(j = 0; j <= dens_maxr/dens_binsize_r; ++j) {
 	    dens_nmeas[j + i*dens_length_r]++;
 	}
     }
-    for (i = 0; i < dens_p_maxz/dens_binsize_z+1; ++i) {
-	for(j = 0; j < dens_p_maxr/dens_binsize_r+1; ++j) {
+    for (i = 0; i <= dens_p_maxz/dens_binsize_z; ++i) {
+	for(j = 0; j <= dens_p_maxr/dens_binsize_r; ++j) {
 	    dens_p_nmeas[j + i*dens_length_r] += 2;
 	}
     }
@@ -840,16 +842,16 @@ int initialize()
 
 
   {
-    double initdist = 0.2;
+    _rx[0] = LX/2.;
+    _ry[0] = LY/2.;
+    _rz[0] = LZ/2.;
+    double initdist = 0.4;
     tmpx = (drand[0]()*initdist*2.-initdist)/sqrt(3);
     tmpy = (drand[0]()*initdist*2.-initdist)/sqrt(3);
     tmpz = sqrt(initdist*initdist-tmpx*tmpx-tmpy*tmpy);
-    _rx[0] = LX/2;
-    _ry[0] = LY/2;
-    _rz[0] = 0.3 + tmpz;
-    _rx[1] = LX/2 + tmpx;
-    _ry[1] = LY/2 + tmpy;
-    _rz[1] = 0.3 - tmpz;
+    _rx[1] = LX/2. + tmpx;
+    _ry[1] = LY/2. + tmpy;
+    _rz[1] = LZ/2. + tmpz;
 
     _vx[0] = _vy[0] = _vz[0] = 0.;
     _vx[1] = _vy[1] = _vz[1] = 0.;

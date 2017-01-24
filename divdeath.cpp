@@ -54,8 +54,10 @@ void cell_death()
       if ((_rz[i*_pperc]+_rz[i*_pperc+1])/2. < dens_minz)
         dens_minz = (_rz[i*_pperc]+_rz[i*_pperc+1])/2.;
   #ifdef ZYLINDRICAL
-      if ((NORM(_rx[i*_pperc]-dens_com_rx,_ry[i*_pperc]-dens_com_ry, 0.) + NORM(_rx[i*_pperc+1]-dens_com_rx,_ry[i*_pperc+1]-dens_com_ry, 0.))/2. > dens_maxr)
-	dens_maxr = (NORM(_rx[i*_pperc]-dens_com_rx,_ry[i*_pperc]-dens_com_ry, 0.) + NORM(_rx[i*_pperc+1]-dens_com_rx,_ry[i*_pperc+1]-dens_com_ry, 0.))/2.;
+      if ((NORM(_rx[i*_pperc]-dens_com_rx,_ry[i*_pperc]-dens_com_ry, 0.) + NORM(_rx[i*_pperc+1]-dens_com_rx,_ry[i*_pperc+1]-dens_com_ry, 0.))/2. > dens_maxr) {
+        if((NORM(_rx[i*_pperc]-dens_com_rx,_ry[i*_pperc]-dens_com_ry, 0.) + NORM(_rx[i*_pperc+1]-dens_com_rx,_ry[i*_pperc+1]-dens_com_ry, 0.))/2. < BOXLENGTH_X/2)
+	  dens_maxr = (NORM(_rx[i*_pperc]-dens_com_rx,_ry[i*_pperc]-dens_com_ry, 0.) + NORM(_rx[i*_pperc+1]-dens_com_rx,_ry[i*_pperc+1]-dens_com_ry, 0.))/2.;
+      }
   #endif
  #endif
       for (k=i*_pperc; k < (i+1)*_pperc; ++k) {
