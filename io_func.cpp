@@ -116,8 +116,7 @@ void output_trajectory()
     for (i = _pperc*j; i < _pperc*(j+1); ++i) {
       if (_spec[i] == -1)
         continue;
-      ftraj << setprecision(10) << curtime << "\t" << _id[i] << "\t" << _rx[i] << "\t" << _ry[i] << "\t" << _rz[i] << "\t"
-            << _spec[i] << "\t" << _vx[i] << "\t" << _vy[i] << "\t" << _vz[i] << "\n";
+      ftraj << setprecision(10) << curtime << "\t" << _id[i] << "\t" << _rx[i] << "\t" << _ry[i] << "\t" << _rz[i] <<  "\n";
     }
   }
   /////////////////////////////////////
@@ -666,6 +665,7 @@ void dump_all()
   fdump.write((const char *)gammac, ldummy*ldummy*sizeof(double));
   fdump.write((const char *)gammat, ldummy*ldummy*sizeof(double));
   fdump.write((const char *)gammab, ldummy*ldummy*sizeof(double));
+  fdump.write((const char *)gammas, ldummy*ldummy*sizeof(double));
   fdump.write((const char *)ka, ldummy*ldummy*sizeof(double));
   fdump.write((const char *)f0, ldummy*ldummy*sizeof(double));
   fdump.write((const char *)f1, ldummy*ldummy*sizeof(double));
@@ -856,6 +856,7 @@ int load_dump(char *fname, int load_add_param)
     fdump.read((char *)gammac, ldummy*sizeof(double));
     fdump.read((char *)gammat, ldummy*sizeof(double));
     fdump.read((char *)gammab, ldummy*sizeof(double));
+    fdump.read((char *)gammas, ldummy*sizeof(double));
     fdump.read((char *)ka, ldummy*sizeof(double));
     fdump.read((char *)f0, ldummy*sizeof(double));
     fdump.read((char *)f1, ldummy*sizeof(double));
