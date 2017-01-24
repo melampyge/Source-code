@@ -351,10 +351,8 @@ int main(int argc, char *argv[])
                         ) continue;
       if ((_rz[i*_pperc]+_rz[i*_pperc+1])/2. > dens_maxz)
         dens_maxz = (_rz[i*_pperc]+_rz[i*_pperc+1])/2.;
-      if ((NORM(_rx[i*_pperc]-dens_com_rx,_ry[i*_pperc]-dens_com_ry, 0.) + NORM(_rx[i*_pperc+1]-dens_com_rx,_ry[i*_pperc+1]-dens_com_ry, 0.))/2. > dens_maxr) {
-	  if((NORM(_rx[i*_pperc]-dens_com_rx,_ry[i*_pperc]-dens_com_ry, 0.) + NORM(_rx[i*_pperc+1]-dens_com_rx,_ry[i*_pperc+1]-dens_com_ry, 0.))/2. < BOXLENGTH_X/2)
-	    dens_maxr = (NORM(_rx[i*_pperc]-dens_com_rx,_ry[i*_pperc]-dens_com_ry, 0.) + NORM(_rx[i*_pperc+1]-dens_com_rx,_ry[i*_pperc+1]-dens_com_ry, 0.))/2.;
-      }
+      if ((NORM(_rx[i*_pperc]-dens_com_rx,_ry[i*_pperc]-dens_com_ry, 0.) + NORM(_rx[i*_pperc+1]-dens_com_rx,_ry[i*_pperc+1]-dens_com_ry, 0.))/2. > dens_maxr)
+        dens_maxr = (NORM(_rx[i*_pperc]-dens_com_rx,_ry[i*_pperc]-dens_com_ry, 0.) + NORM(_rx[i*_pperc+1]-dens_com_rx,_ry[i*_pperc+1]-dens_com_ry, 0.))/2.;
       if ((_rz[i*_pperc]+_rz[i*_pperc+1])/2. < dens_minz)
         dens_minz = (_rz[i*_pperc]+_rz[i*_pperc+1])/2.;
       for (k=i*_pperc; k < (i+1)*_pperc; ++k) {
@@ -386,7 +384,7 @@ int main(int argc, char *argv[])
       int __index = GET__INDEX(i, dens_binsize);		// see basics.h
       __ASSERT(__index, 0, dens_length, "__index in main()");
  #elif defined (ZYLINDRICAL)
-       int __index = GET__INDEX_R(i, dens_binsize_r) + GET__INDEX_Z(i, dens_binsize_z)*dens_length_r;	// see basics.h
+       int __index = GET__INDEX_P_R(i, dens_binsize_r) + GET__INDEX_P_Z(i, dens_binsize_z)*dens_length_r;	// see basics.h
       __ASSERT(__index, 0, dens_length_z*dens_length_r, "__index in main()");
  #endif
       dens_rhoV[__index]++;
@@ -541,20 +539,20 @@ int main(int argc, char *argv[])
       dens_lastmean_p_minz = dens_mean_p_minz;
       dens_mean_p_minz = 0.;
  #elif defined (ZYLINDRICAL)
-    for (i = 0; i <= dens_maxz/dens_binsize_z; ++i) {
-	for(j = 0; j <= dens_maxr/dens_binsize_r; ++j) {
+    for (i = 0; i < dens_maxz/dens_binsize_z+1; ++i) {
+	for(j = 0; j < dens_maxr/dens_binsize_r+1; ++j) {
 	    dens_rhoVsq[j + i*dens_length_r] += dens_rhoVsqtmp[j + i*dens_length_r]*dens_rhoVsqtmp[j + i*dens_length_r];
 	}
     }
     ///////////////////////////////////
-    // count which z and r values have been reached and measured
-    for (i = 0; i <= dens_maxz/dens_binsize_z; ++i) {
-	for(j = 0; j <= dens_maxr/dens_binsize_r; ++j) {
+    // count which z values have been reached and measured
+    for (i = 0; i < dens_maxz/dens_binsize_z+1; ++i) {
+	for(j = 0; j < dens_maxr/dens_binsize_r+1; ++j) {
 	    dens_nmeas[j + i*dens_length_r]++;
 	}
     }
-    for (i = 0; i <= dens_p_maxz/dens_binsize_z; ++i) {
-	for(j = 0; j <= dens_p_maxr/dens_binsize_r; ++j) {
+    for (i = 0; i < dens_p_maxz/dens_binsize_z+1; ++i) {
+	for(j = 0; j < dens_p_maxr/dens_binsize_r+1; ++j) {
 	    dens_p_nmeas[j + i*dens_length_r] += 2;
 	}
     }
