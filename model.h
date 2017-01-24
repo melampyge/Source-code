@@ -102,7 +102,10 @@ inline double distz(long i, long j)
 #endif
 }
 
-
+inline double zpos(long i)
+{
+  return _rz[i];
+}
 
 ////////////////////////////////////
 // double distsq(...)
