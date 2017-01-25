@@ -793,8 +793,8 @@ void dump_all()
   fdump.write((const char *)gammab, ldummy*ldummy*sizeof(double));
 #ifdef SUBSTRATE
   fdump.write((const char *)gammas, ldummy*ldummy*sizeof(double));
-  fdump.write((const char *)fa, ldummy*ldummy*sizeof(double))
-  fdump.write((const char *)rz, ldummy*ldummy*sizeof(double))
+  fdump.write((const char *)fa, ldummy*ldummy*sizeof(double));
+  fdump.write((const char *)rz, ldummy*ldummy*sizeof(double));
 #endif
   fdump.write((const char *)ka, ldummy*ldummy*sizeof(double));
   fdump.write((const char *)f0, ldummy*ldummy*sizeof(double));

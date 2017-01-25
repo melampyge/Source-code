@@ -72,7 +72,7 @@ double *m;				// mass of particles
 #ifdef SUBSTRATE
 double *gammas;
 double *rz;
-double *fa
+double *fa;
 #endif
 //////////////////////////////////////////
 // other calculated properties of tissue
