@@ -60,19 +60,20 @@ double *r0;
 double *rt;
 double *rc;
 double *rct;
-double *rz;
 double *b;
 double *gammac;
 double *gammat;
 double *gammab;
-double *gammas;
 double *ka;
 double *f0;
-double *f1;
-double *fa;
+double *f1;;
 double *m;				// mass of particles
 
-
+#ifdef SUBSTRATE
+double *gammas;
+double *rz;
+double *fa
+#endif
 //////////////////////////////////////////
 // other calculated properties of tissue
 double com_rx = 0.;

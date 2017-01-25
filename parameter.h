@@ -21,7 +21,6 @@
 #define RT  1.			// range of dissipative forces
 #define RC  0.00001		// distance at which new cell particles are placed after division
 #define RCT 0.8			// distance threshold for cell division
-#define RZ  0.3			// range of substrate adhesion
 
 #define B 50    		// growth coefficient
 
@@ -30,7 +29,6 @@
 #define GAMMAC 100.
 #define GAMMAT 50.
 #define GAMMAB 0.1
-#define GAMMAS 50.
 
 #define KA 0.			// rate of cell death
 
@@ -38,7 +36,6 @@
 
 #define F0 2.39566029905288	// repulsive cell-cell potential coefficient
 #define F1 7.5			// attractive cell-cell potential coefficient
-#define FA 7.5			// adhesion to substrate coefficient
 
 #define BOXLENGTH_X 50		// box length in x direction
 #define BOXLENGTH_Y 50
@@ -64,6 +61,13 @@
 #define MAXTHREADNUM 16
 
 
+// Add substrate at z=0
+#define SUBSTRATE
+ #ifdef SUBSTRATE
+  #define GAMMAS 50.			// friction with substrate
+  #define RZ  0.3			// range of substrate adhesion
+  #define FA 7.5			// adhesion to substrate coefficient
+ #endif
 ////////////////////////////////////
 // Check run time periodically and stop
 // after WTRUNTIME seconds
@@ -255,19 +259,20 @@ extern double *r0;
 extern double *rt;
 extern double *rc;
 extern double *rct;
-extern double *rz;
 extern double *b;
 extern double *gammac;
 extern double *gammat;
 extern double *gammab;
-extern double *gammas;
 extern double *ka;
 extern double *f0;
 extern double *f1;
-extern double *fa;
 extern double *m;			// mass of particles
 
-
+#ifdef SUBSTRATE
+extern double *rz;
+extern double *fa;
+extern double *gammas;
+#endif
 //////////////////////////////////////////
 // other calculated properties of tissue
 extern double com_rx;

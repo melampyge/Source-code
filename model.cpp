@@ -473,11 +473,12 @@ void calcbackgroundfd(long i)
 
   ///////////////////////////////////
   //Substrate force and friction
-
+#ifdef SUBSTRATE
   if(z<rz_) {
   _fdz[i] += -fa[index*MAXSPECNUM+index];
   _fdx[i] += -gammas[index]*_vx[i];
   _fdy[i] += -gammas[index]*_vy[i];
+#endif
   }
 }
 
