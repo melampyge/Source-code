@@ -97,7 +97,6 @@ int allocate_init_arrays()
 #endif
 
 #ifdef DENSITYPROFILE
- #if (defined (RECTANGULAR) || defined (SPHERICAL))
     dens_rhoV    = new int[dens_length];
     dens_rhoVsq  = new int[dens_length];
     dens_rhoVsqtmp = new int[dens_length];
@@ -137,47 +136,6 @@ int allocate_init_arrays()
     std::fill(dens_cell_sq, dens_cell_sq+dens_length, 0.);
     std::fill(dens_mean_cell_dr, dens_mean_cell_dr+dens_length, 0.);
     std::fill(dens_mean_NN_dr, dens_mean_NN_dr+dens_length, 0.);
- #elif defined (ZYLINDRICAL)
-    dens_rhoV = new int[dens_length_r*dens_length_z];
-    dens_rhoVsq = new int[dens_length_r*dens_length_z];
-    dens_rhoVsqtmp = new int[dens_length_r*dens_length_z];
-    dens_knmeas = new int[dens_length_r*dens_length_z];
-    dens_nmeas = new int[dens_length_r*dens_length_z];
-    dens_p_nmeas = new int[dens_length_r*dens_length_z];
-    dens_nkd = new int[dens_length_r*dens_length_z];
-    dens_nka = new int[dens_length_r*dens_length_z]; 
-    dens_ka = new double[dens_length_r*dens_length_z];
-    dens_kd = new double[dens_length_r*dens_length_z];
-    dens_kperp   = new double[dens_length_r*dens_length_z];
-    dens_kpara   = new double[dens_length_r*dens_length_z];
-    dens_curn = new int[dens_length_r*dens_length_z];	
-    dens_curnka = new int[dens_length_r*dens_length_z];
-    dens_curnkd = new int[dens_length_r*dens_length_z];
-    dens_sq      = new double[dens_length_r*dens_length_z];
-    dens_cell_sq = new double[dens_length_r*dens_length_z];
-    dens_mean_cell_dr = new double[dens_length_r*dens_length_z];
-    dens_mean_NN_dr = new double[dens_length_r*dens_length_z];
-    
-    std::fill(dens_rhoV, dens_rhoV+dens_length_r*dens_length_z, 0);
-    std::fill(dens_rhoVsq, dens_rhoVsq+dens_length_r*dens_length_z, 0);
-    std::fill(dens_rhoVsqtmp, dens_rhoVsqtmp+dens_length_r*dens_length_z, 0);
-    std::fill(dens_nmeas, dens_nmeas+dens_length_r*dens_length_z, 0);
-    std::fill(dens_knmeas, dens_knmeas+dens_length_r*dens_length_z, 0);
-    std::fill(dens_nkd, dens_nkd+dens_length_r*dens_length_z, 0);
-    std::fill(dens_nka, dens_nka+dens_length_r*dens_length_z, 0);
-    std::fill(dens_kpara, dens_kpara+dens_length_r*dens_length_z, 0.);
-    std::fill(dens_kperp, dens_kperp+dens_length_r*dens_length_z, 0.);
-    std::fill(dens_p_nmeas, dens_p_nmeas+dens_length_r*dens_length_z, 0);
-    std::fill(dens_ka, dens_ka+dens_length_r*dens_length_z, 0.);
-    std::fill(dens_kd, dens_kd+dens_length_r*dens_length_z, 0.);
-    std::fill(dens_curn, dens_curn+dens_length_r*dens_length_z, 0);
-    std::fill(dens_curnka, dens_curnka+dens_length_r*dens_length_z, 0);
-    std::fill(dens_curnkd, dens_curnkd+dens_length_r*dens_length_z, 0);
-    std::fill(dens_sq, dens_sq+dens_length_r*dens_length_z, 0.);
-    std::fill(dens_cell_sq, dens_cell_sq+dens_length_r*dens_length_z, 0.);
-    std::fill(dens_mean_cell_dr, dens_mean_cell_dr+dens_length_r*dens_length_z, 0.);
-    std::fill(dens_mean_NN_dr, dens_mean_NN_dr+dens_length_r*dens_length_z, 0.);
- #endif
  #ifdef RECTANGULAR
     flux_vx      = new double[dens_length];
     flux_vy      = new double[dens_length];
@@ -198,16 +156,6 @@ int allocate_init_arrays()
 
     std::fill(flux_vr, flux_vr+dens_length, 0.);
     std::fill(flux_p_vr, flux_p_vr+dens_length, 0.);
- #elif defined (ZYLINDRICAL)
-    flux_vr	 = new double[dens_length_r*dens_length_z];
-    flux_p_vr	 = new double[dens_length_r*dens_length_z];
-    flux_vz	 = new double[dens_length_r*dens_length_z];
-    flux_p_vz	 = new double[dens_length_r*dens_length_z];
-    
-    std::fill(flux_vr, flux_vr+dens_length_r*dens_length_z, 0.);
-    std::fill(flux_vz, flux_vz+dens_length_r*dens_length_z, 0.);
-    std::fill(flux_p_vr, flux_p_vr+dens_length_r*dens_length_z, 0.);
-    std::fill(flux_p_vz, flux_p_vz+dens_length_r*dens_length_z, 0.);
  #endif
  #ifdef REALFLUX
     rflux_jz     = new long[dens_length];
@@ -315,6 +263,12 @@ int allocate_init_arrays()
     f0     = new double[MAXSPECNUM*MAXSPECNUM];
     f1     = new double[MAXSPECNUM*MAXSPECNUM];
     m      = new double[MAXSPECNUM*MAXSPECNUM];
+#ifdef SUBSTRATE
+    gammas = new double[MAXSPECNUM*MAXSPECNUM];
+    rz	   = new double[MAXSPECNUM*MAXSPECNUM];
+    fa	   = new double[MAXSPECNUM*MAXSPECNUM];
+#endif
+    
 
     randf_prefc = new double[MAXSPECNUM*MAXSPECNUM];
     randf_preft = new double[MAXSPECNUM*MAXSPECNUM];
@@ -347,6 +301,11 @@ int allocate_init_arrays()
         f0[i*MAXSPECNUM+j] = F0;
         f1[i*MAXSPECNUM+j] = F1;
         m[i*MAXSPECNUM+j] = MASS;
+#ifdef SUBSTRATE
+	fa[i*MAXSPECNUM+j] = FA;
+	gammas[i*MAXSPECNUM+j] = GAMMAS;
+	rz[i*MAXSPECNUM+j] = RZ;
+#endif
       }
       else {
         rpp[i*MAXSPECNUM+j] = RPP;
@@ -357,11 +316,16 @@ int allocate_init_arrays()
         b[i*MAXSPECNUM+j] = B;
         gammac[i*MAXSPECNUM+j] = GAMMAC;
         gammat[i*MAXSPECNUM+j] = GAMMAT;
-        gammab[i*MAXSPECNUM+j] = GAMMAB;
+        gammab[i*MAXSPECNUM+j] = GAMMAB;;
         ka[i*MAXSPECNUM+j] = KA;
         f0[i*MAXSPECNUM+j] = F0;
         f1[i*MAXSPECNUM+j] = F1;
         m[i*MAXSPECNUM+j] = MASS;
+#ifdef SUBSTRATE
+	fa[i*MAXSPECNUM+j] = FA;
+	gammas[i*MAXSPECNUM+j] = GAMMAS;
+	rz[i*MAXSPECNUM+j] = RZ;
+#endif
       }
       randf_prefc[i*MAXSPECNUM+j] = sqrt(2.*gammac[i*MAXSPECNUM+j]*kbt/dt);
       randf_preft[i*MAXSPECNUM+j] = sqrt(2.*gammat[i*MAXSPECNUM+j]*kbt/dt);
@@ -380,6 +344,9 @@ int allocate_init_arrays()
     f1[i*MAXSPECNUM+gas_spec] = f1[gas_spec*MAXSPECNUM+i] = 0.;
     gammac[i*MAXSPECNUM+gas_spec] = gammac[gas_spec*MAXSPECNUM+i] = 0.;
     gammat[i*MAXSPECNUM+gas_spec] = gammat[gas_spec*MAXSPECNUM+i] = 0.;
+#ifdef SUBSTRATE
+    gammas[i*MAXSPECNUM+gas_spec] = gammas[gas_spec*MAXSPECNUM+i] = 0.;
+#endif
     randf_prefc[i*MAXSPECNUM+gas_spec] = randf_prefc[gas_spec*MAXSPECNUM+i] = 0.;
     randf_preft[i*MAXSPECNUM+gas_spec] = randf_preft[gas_spec*MAXSPECNUM+i] = 0.;
   }

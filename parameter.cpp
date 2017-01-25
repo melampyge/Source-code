@@ -66,10 +66,14 @@ double *gammat;
 double *gammab;
 double *ka;
 double *f0;
-double *f1;
+double *f1;;
 double *m;				// mass of particles
 
-
+#ifdef SUBSTRATE
+double *gammas;
+double *rz;
+double *fa
+#endif
 //////////////////////////////////////////
 // other calculated properties of tissue
 double com_rx = 0.;
@@ -144,13 +148,12 @@ double *pm_pzL;
 
 
 #ifdef DENSITYPROFILE
- #if (defined (RECTANGULAR) || defined (SPHERICAL))
 int *dens_rhoV;				// density profile
 int *dens_rhoVsq;
 int *dens_rhoVsqtmp;
-int *dens_nmeas;				// number of measurements at s
+int *dens_nmeas;			// number of measurements at s
 int *dens_p_nmeas;
-int *dens_knmeas;		// number of measurements for rates kd/ka (meas makes only sense when cells present)
+int *dens_knmeas;			// number of measurements for rates kd/ka (meas makes only sense when cells present)
 int *dens_nkd;				// number of divisions at s
 int *dens_nka;				// number of deaths at s
 double *dens_ka;
@@ -174,82 +177,29 @@ double *dens_kpara;			// k_d parallel to surface
 int *dens_curn;				// current number of cells (used for kd/a)
 int *dens_curnka;			// current number of cell deaths (used for ka)
 int *dens_curnkd;			// current number of cell divisions (used for kd)
-double *dens_sq;				// nematic order parameter of division (zz component)
+double *dens_sq;			// nematic order parameter of division (zz component)
 double *dens_cell_sq;			// nematic order parameter of cell alignment (zz component)
-double dens_com_rx;			// Center of mass r_x
-double dens_com_ry;			// -"- r_y
-double dens_com_rz;			// -"- r_z
-long dens_com_n;
+double dens_com_rx = 0.;		// Center of mass r_x
+double dens_com_ry = 0.;		// -"- r_y
+double dens_com_rz = 0.;		// -"- r_z
+long dens_com_n = 0;
 double *dens_mean_cell_dr;		// Mean cell "size", i.e. distance between its two particles
-double *dens_mean_NN_dr;			// Mean nearest neighbour distance
- #elif defined (ZYLINDRICAL)
-int *dens_rhoV;
-int *dens_rhoVsq;
-int *dens_rhoVsqtmp;
-int *dens_nmeas;				// number of measurements at s
-int *dens_p_nmeas;
-int *dens_knmeas;		// number of measurements for rates kd/ka (meas makes only sense when cells present)
-int *dens_nkd;			// number of divisions at s
-int *dens_nka;			// number of deaths at s 
-double *dens_ka;
-double *dens_kd;	
-double dens_binsize_z = 0.2;
-double dens_binsize_r = 0.5;
-int dens_length_z = (int)(LZ/dens_binsize_z+1);
-int dens_length_r = (int)(LX/(2*dens_binsize_r)+1);
-double dens_maxz = -1.;
-double dens_maxr = -1.;
-double dens_mean_maxz = 0.;
-double dens_mean_maxr = 0.;
-double dens_lastmean_maxz = 0.;
-double dens_lastmean_maxr = 0.;
-double dens_p_maxz = -1.;
-double dens_p_maxr = -1;
-double dens_mean_p_maxz = 0.;
-double dens_mean_p_maxr = 0.;
-double dens_lastmean_p_maxz = 0.;
-double dens_lastmean_p_maxr = 0.;
-double dens_minz = -1.;
-double dens_mean_minz = 0.;
-double dens_lastmean_minz = 0.;
-double dens_p_minz = -1.;
-double dens_mean_p_minz = 0.;
-double dens_lastmean_p_minz = 0.;
-double *dens_kperp;			// k_d perpendicular to surface
-double *dens_kpara;			// k_d parallel to surface
-int *dens_curn;				// current number of cells (used for kd/a)
-int *dens_curnka;			// current number of cell deaths (used for ka)
-int *dens_curnkd;			// current number of cell divisions (used for kd)
-double *dens_sq;				// nematic order parameter of division (zz component)
-double *dens_cell_sq;			// nematic order parameter of cell alignment (zz component)
-double dens_com_rx;			// Center of mass r_x
-double dens_com_ry;			// -"- r_y
-double dens_com_rz;			// -"- r_z
-long dens_com_n;
-double *dens_mean_cell_dr;		// Mean cell "size", i.e. distance between its two particles
-double *dens_mean_NN_dr;			// Mean nearest neighbour distance
- #endif
-               
- #ifdef RECTANGULAR
-double *flux_vx;				// x component of mean velocity in layer i
-double *flux_vy;				// y component of mean velocity in layer i
-double *flux_vz;				// z component of mean velocity in layer i
-double *flux_p_vx;			// x component of mean particle velocity in layer i
-double *flux_p_vy;			// y component of mean particle velocity in layer i
-double *flux_p_vz;			// z component of mean particle velocity in layer i
- #elif defined (SPHERICAL)
-double *flux_vr; 			// radial component of mean velocity in layer i
-double *flux_p_vr;			// radial component of mean particle velocity in layer i
- #elif defined (ZYLINDRICAL)
-double *flux_vr; 			// radial component of mean velocity in layer i
-double *flux_p_vr;			// radial component of mean particle velocity in layer i
-double *flux_vz; 			// radial component of mean velocity in layer i
-double *flux_p_vz;			// radial component of mean particle velocity in layer i
- #endif
- #ifdef REALFLUX
+double *dens_mean_NN_dr;		// Mean nearest neighbour distance
+#ifdef RECTANGULAR
+double *flux_vx;			// x component of summed velocity in layer i
+double *flux_vy;			// y component of summed velocity in layer i
+double *flux_vz;			// z component of summed velocity in layer i
+double *flux_p_vx;			// x component of summed particle velocity in layer i
+double *flux_p_vy;			// y component of summed particle velocity in layer i
+double *flux_p_vz;			// z component of summed particle velocity in layer i
+#elif defined (SPHERICAL)
+double *flux_vr;			// radial component of summed velocity in layer i
+double *flux_p_vr;			// radial component of summed particle velocity in layer i
+#endif
+#ifdef REALFLUX
 long *rflux_jz;				// real flux in z direction
 double *rflux_crz;			// old cell rz position
- #endif
+#endif
 #endif
 
 
