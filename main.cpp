@@ -291,7 +291,9 @@ int main(int argc, char *argv[])
     dens_com_rx = com_rx;
     dens_com_ry = com_ry;
     dens_com_rz = com_rz;
-
+ #ifdef ZYLINDRICAL
+    dens_maxr = dens_p_maxr = -1.;
+ #endif
  #ifdef RECTANGULAR
     for (i = 0; i < lastcn; ++i) {
       if (_list[i] != -1
@@ -337,10 +339,40 @@ int main(int argc, char *argv[])
       if (tmpcrsq > dens_maxz*dens_maxz)
         dens_maxz = sqrt(tmpcrsq);
     }
- #endif		// ifdef REC elifdef SPH
+ #elif defined (ZYLINDRICAL)
+    for (i = 0; i < lastcn; ++i) {
+      if (_list[i] != -1
+  #ifdef FIXEDCELLS
+                         || _spec[i*_pperc] == fixed_spec
+  #endif
+  #ifdef PGAS
+                         || _spec[i*_pperc] == gas_spec
+  #endif
+                        ) continue;
+      if ((_rz[i*_pperc]+_rz[i*_pperc+1])/2. > dens_maxz)
+        dens_maxz = (_rz[i*_pperc]+_rz[i*_pperc+1])/2.;
+      if ((NORM(_rx[i*_pperc]-dens_com_rx,_ry[i*_pperc]-dens_com_ry, 0.) + NORM(_rx[i*_pperc+1]-dens_com_rx,_ry[i*_pperc+1]-dens_com_ry, 0.))/2. > dens_maxr) {
+	  if((NORM(_rx[i*_pperc]-dens_com_rx,_ry[i*_pperc]-dens_com_ry, 0.) + NORM(_rx[i*_pperc+1]-dens_com_rx,_ry[i*_pperc+1]-dens_com_ry, 0.))/2. < BOXLENGTH_X/2)
+	    dens_maxr = (NORM(_rx[i*_pperc]-dens_com_rx,_ry[i*_pperc]-dens_com_ry, 0.) + NORM(_rx[i*_pperc+1]-dens_com_rx,_ry[i*_pperc+1]-dens_com_ry, 0.))/2.;
+      }
+      if ((_rz[i*_pperc]+_rz[i*_pperc+1])/2. < dens_minz)
+        dens_minz = (_rz[i*_pperc]+_rz[i*_pperc+1])/2.;
+      for (k=i*_pperc; k < (i+1)*_pperc; ++k) {
+        if (_rz[k] > dens_p_maxz)
+          dens_p_maxz = _rz[k];
+        if (_rz[k] < dens_p_minz)
+          dens_p_minz = _rz[k];
+	if (NORM(_rx[k]-dens_com_rx, _ry[k]-dens_com_ry,0.) > dens_p_maxr)
+	  dens_p_maxr = NORM(_rx[k]-dens_com_rx, _ry[k]-dens_com_ry,0.);
+      }
+    }
+ #endif		// ifdef REC elifdef SPH elifdef ZYL
 
-
-    fill(dens_rhoVsqtmp, dens_rhoVsqtmp+dens_length, 0);
+ #if ( defined (RECTANGULAR) || defined (SPHERICAL) )
+     fill(dens_rhoVsqtmp, dens_rhoVsqtmp+dens_length, 0);
+ #elif defined (ZYLINDRICAL)
+     fill(dens_rhoVsqtmp, dens_rhoVsqtmp+dens_length_r*dens_length_z, 0);
+ #endif
     for (i = 0; i < lastcn; ++i) {
       if (_list[i] != -1
  #ifdef FIXEDCELLS
@@ -350,8 +382,13 @@ int main(int argc, char *argv[])
                          || _spec[i*_pperc] == gas_spec
  #endif
                         ) continue;
+ #if ( defined (RECTANGULAR) || defined (SPHERICAL) )
       int __index = GET__INDEX(i, dens_binsize);		// see basics.h
       __ASSERT(__index, 0, dens_length, "__index in main()");
+ #elif defined (ZYLINDRICAL)
+       int __index = GET__INDEX_R(i, dens_binsize_r) + GET__INDEX_Z(i, dens_binsize_z)*dens_length_r;	// see basics.h
+      __ASSERT(__index, 0, dens_length_z*dens_length_r, "__index in main()");
+ #endif
       dens_rhoV[__index]++;
       dens_rhoVsqtmp[__index]++;
       {
@@ -378,10 +415,10 @@ int main(int argc, char *argv[])
           int j2 = __GETOTHERCELLPART(j1);
           if (j1 > j2)
             continue;
- #ifdef PGAS
+  #ifdef PGAS
           if (_spec[j1] == gas_spec)
             continue;
- #endif
+  #endif
           double tmprpx2 = (_rx[j1]+_rx[j1+1])/2.;
           double tmprpy2 = (_ry[j1]+_ry[j1+1])/2.;
           double tmprpz2 = (_rz[j1]+_rz[j1+1])/2.;
@@ -391,6 +428,7 @@ int main(int argc, char *argv[])
         }
         dens_mean_NN_dr[__index] += sqrt(mindrsq);
       }
+ 
  #ifdef RECTANGULAR
       flux_vx[__index]   += (_vx[i*_pperc]+_vx[i*_pperc+1])/2.;
       flux_vy[__index]   += (_vy[i*_pperc]+_vy[i*_pperc+1])/2.;
@@ -407,22 +445,44 @@ int main(int argc, char *argv[])
         flux_vr[__index] += (tmpvx*(tmprx-dens_com_rx) + tmpvy*(tmpry-dens_com_ry)
                              + tmpvz*(tmprz-dens_com_rz))/tmpernorm;
       }
+ #elif defined ZYLINDRICAL
+      {
+	double tmpvx = (_vx[i*_pperc]+_vx[i*_pperc+1])/2.;
+	double tmpvy = (_vy[i*_pperc]+_vy[i*_pperc+1])/2.;
+	double tmprx = (_rx[i*_pperc]+_rx[i*_pperc+1])/2.;
+	double tmpry = (_ry[i*_pperc]+_ry[i*_pperc+1])/2.;
+	double tmpernorm = NORM(dens_com_rx-tmprx, dens_com_ry-tmpry, 0.);
+	flux_vr[__index] +=  (tmpvx*(tmprx-dens_com_rx) + tmpvy*(tmpry-dens_com_ry));
+	flux_vz[__index]   += (_vz[i*_pperc]+_vz[i*_pperc+1])/2.;
+      }
  #endif  // ifdef RECTANGULAR
+ #if ( defined(RECTANGULAR) || defined (SPHERICAL) )
       for (k = i*_pperc; k < (i+1)*_pperc; ++k) {
         int __index_p = GET__INDEX_P(k, dens_binsize);		// see basics.h
         __ASSERT(__index_p, 0, dens_length, "__index_p in main()");
- #ifdef RECTANGULAR
+  #ifdef RECTANGULAR
         flux_p_vx[__index_p] += _vx[k];
         flux_p_vy[__index_p] += _vy[k];
         flux_p_vz[__index_p] += _vz[k];
- #elif defined SPHERICAL
+  #elif defined SPHERICAL
         {
           double tmpernorm = NORM(dens_com_rx-_rx[k], dens_com_ry-_ry[k], dens_com_rz-_rz[k]);
           flux_vr[__index] += (_vx[k]*(_rx[k]-dens_com_rx) + _vy[k]*(_ry[k]-dens_com_ry)
                              + _vz[k]*(_rz[k]-dens_com_rz))/tmpernorm;
         }
- #endif  // ifdef RECTANGULAR
+  #endif
       }
+ #elif defined ZYLINDRICAL
+       for (k = i*_pperc; k < (i+1)*_pperc; ++k) {
+	    int __index_p = GET__INDEX_P_R(k, dens_binsize_r) + GET__INDEX_P_Z(k, dens_binsize_z)*dens_length_r;	// see basics.h
+	    __ASSERT(__index_p, 0, dens_length_r*dens_length_z, "__index_p in main()");
+	    
+	    double tmpernorm = NORM(dens_com_rx-_rx[k], dens_com_ry-_ry[k], 0.);
+	    flux_p_vr[__index_p] += (_vx[k]*(_rx[k]-dens_com_rx) + _vy[k]*(_ry[k]-dens_com_ry))/tmpernorm;
+	    flux_p_vz[__index_p] += _vz[k];
+	}
+ #endif  // ifdef RECTANGULAR
+
  #ifdef REALFLUX
       double crz = GET_REALFLUX_CRZ(i);
       int fbinold = (int)(rflux_crz[i]/dens_binsize);
@@ -438,6 +498,7 @@ int main(int argc, char *argv[])
     }
     ///////////////////////////////////
     // calculate rhoVsq
+ #if ( defined(RECTANGULAR) || defined (SPHERICAL) )
     for (i = 0; i < dens_maxz/dens_binsize+1; ++i)
       dens_rhoVsq[i] += dens_rhoVsqtmp[i]*dens_rhoVsqtmp[i];
 
@@ -479,6 +540,62 @@ int main(int argc, char *argv[])
       dens_mean_minz = 0.;
       dens_lastmean_p_minz = dens_mean_p_minz;
       dens_mean_p_minz = 0.;
+ #elif defined (ZYLINDRICAL)
+    for (i = 0; i <= dens_maxz/dens_binsize_z; ++i) {
+	for(j = 0; j <= dens_maxr/dens_binsize_r; ++j) {
+	    dens_rhoVsq[j + i*dens_length_r] += dens_rhoVsqtmp[j + i*dens_length_r]*dens_rhoVsqtmp[j + i*dens_length_r];
+	}
+    }
+    ///////////////////////////////////
+    // count which z and r values have been reached and measured
+    for (i = 0; i <= dens_maxz/dens_binsize_z; ++i) {
+	for(j = 0; j <= dens_maxr/dens_binsize_r; ++j) {
+	    dens_nmeas[j + i*dens_length_r]++;
+	}
+    }
+    for (i = 0; i <= dens_p_maxz/dens_binsize_z; ++i) {
+	for(j = 0; j <= dens_p_maxr/dens_binsize_r; ++j) {
+	    dens_p_nmeas[j + i*dens_length_r] += 2;
+	}
+    }
+
+    dens_mean_maxz += dens_maxz;
+    dens_mean_maxr += dens_maxr;
+    dens_mean_p_maxz += dens_p_maxz;
+    dens_mean_p_maxr += dens_p_maxr;
+    dens_mean_minz += dens_minz;
+    dens_mean_p_minz += dens_p_minz;
+    if ((count%DENSDATASTEP) == 0) {
+    output_density();
+    memset(dens_rhoV,  0x00, sizeof(int)*dens_length_r*dens_length_z);
+    memset(dens_rhoVsq,  0x00, sizeof(int)*dens_length_r*dens_length_z);
+    memset(dens_rhoVsqtmp,  0x00, sizeof(int)*dens_length_r*dens_length_z);
+    memset(dens_nmeas, 0x00, sizeof(int)*dens_length_r*dens_length_z);
+    memset(dens_knmeas, 0x00, sizeof(int)*dens_length_r*dens_length_z);
+    memset(dens_nkd,   0x00, sizeof(int)*dens_length_r*dens_length_z);
+    memset(dens_nka,   0x00, sizeof(int)*dens_length_r*dens_length_z);
+    fill(dens_kpara, dens_kpara+dens_length_r*dens_length_z, 0.);
+    fill(dens_kperp, dens_kperp+dens_length_r*dens_length_z, 0.);
+    fill(dens_ka, dens_ka+dens_length_r*dens_length_z, 0.);
+    fill(dens_kd, dens_kd+dens_length_r*dens_length_z, 0.);
+    fill(dens_p_nmeas, dens_p_nmeas+dens_length_r*dens_length_z, 0);
+    fill(dens_sq, dens_sq+dens_length_r*dens_length_z, 0.);
+    fill(dens_cell_sq, dens_cell_sq+dens_length_r*dens_length_z, 0.);
+    fill(dens_mean_cell_dr, dens_mean_cell_dr+dens_length_r*dens_length_z, 0.);
+    fill(dens_mean_NN_dr, dens_mean_NN_dr+dens_length_r*dens_length_z, 0.);
+    dens_lastmean_maxz = dens_mean_maxz;
+    dens_lastmean_maxr = dens_mean_maxr;
+    dens_mean_maxz = 0.;
+    dens_mean_maxr = 0.;
+    dens_lastmean_p_maxz = dens_mean_p_maxz;
+    dens_lastmean_p_maxr = dens_mean_p_maxr;
+    dens_mean_p_maxz = 0.;
+    dens_mean_p_maxr = 0.;
+    dens_lastmean_minz = dens_mean_minz;
+    dens_mean_minz = 0.;
+    dens_lastmean_p_minz = dens_mean_p_minz;
+    dens_mean_p_minz = 0.;
+ #endif
  #ifdef RECTANGULAR
       fill(flux_vx, flux_vx+dens_length, 0.);
       fill(flux_vy, flux_vy+dens_length, 0.);
@@ -489,6 +606,11 @@ int main(int argc, char *argv[])
  #elif defined (SPHERICAL)
       fill(flux_vr, flux_vr+dens_length, 0.);
       fill(flux_p_vr, flux_p_vr+dens_length, 0.);
+ #elif defined (ZYLINDRICAL)
+      fill(flux_vz, flux_vz+dens_length_r*dens_length_z, 0.);
+      fill(flux_vr, flux_vr+dens_length_r*dens_length_z, 0.);
+      fill(flux_p_vz, flux_p_vz+dens_length_r*dens_length_z, 0.);
+      fill(flux_p_vr, flux_p_vr+dens_length_r*dens_length_z, 0.);
  #endif
  #ifdef REALFLUX
       fill(rflux_jz, rflux_jz+dens_length, 0);

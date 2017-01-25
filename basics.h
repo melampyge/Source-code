@@ -259,13 +259,43 @@ ofstream fout((x), ios::trunc);\
      (dens_com_rz-(_rz[(i)*_pperc]+_rz[(i)*_pperc+1])/2.)\
      ) )
  #endif
+#elif defined (ZYLINDRICAL)
+ #ifdef MEASUREINR
+   #define GET__INDEX_R(i,s) ((int)( (NORM(\
+     (dens_com_rx-(_rx[(i)*_pperc]+_rx[(i)*_pperc+1])/2.),\
+     (dens_com_ry-(_ry[(i)*_pperc]+_ry[(i)*_pperc+1])/2.),\
+     (0.)\
+     ))/(s) ))
+   #define GET__INDEX_Z(i,s) ((int)(foldz((_rz[(i)*_pperc]+_rz[(i)*_pperc+1])/2.)/(s) ))
+   #define GET__INDEX_P_R(k,s) ((int)( (NORM(\
+     (dens_com_rx-_rx[(k)]),\
+     (dens_com_ry-_ry[(k)]),\
+     (0.)\
+     ))/(s) ))
+   #define GET__INDEX_P_Z(k,s) ((int)((foldz(_rz[(k)]))/(s) ))
+   #define GET_REALFLUX_CRZ(i) (foldz((_rz[(i)*_pperc]+_rz[(i)*_pperc+1])/2.))
+ #elif defined (MEASUREINS)
+   #define GET__INDEX_R(i,s) ((int)(dens_maxr- (NORM(\
+     (dens_com_rx-(_rx[(i)*_pperc]+_rx[(i)*_pperc+1])/2.),\
+     (dens_com_ry-(_ry[(i)*_pperc]+_ry[(i)*_pperc+1])/2.),\
+     (0.)\
+     ))/(s) ))
+   #define GET__INDEX_Z(i,s) ((int)( (dens_maxz-(_rz[(i)*_pperc]+_rz[(i)*_pperc+1])/2.)/(s) ))
+   #define GET__INDEX_P_R(k,s) ((int)(dens_p_maxr- (NORM(\
+     (dens_com_rx-_rx[(k)]),\
+     (dens_com_ry-_ry[(k)]),\
+     (0.)\
+     ))/(s) ))
+   #define GET__INDEX_P_Z(k,s) ((int)((dens_p_maxz-_rz[(k)])/(s) ))
+   #define GET_REALFLUX_CRZ(i) (dens_maxz-(_rz[(i)*_pperc]+_rz[(i)*_pperc+1])/2.)
+ #endif
 #endif  // ifdef RECTANGULAR
 
 
 
 //////////////////////////////////////
 // calculate theta (either w respect to e_z or r_com)
-#ifdef RECTANGULAR
+#if (defined (RECTANGULAR) || defined (ZYLINDRICAL) ) 
 #define CALC_THETA(x1, y1, z1, x2, y2, z2) (\
     fabs(z1)/NORM(x1, y1, z1)\
     )
