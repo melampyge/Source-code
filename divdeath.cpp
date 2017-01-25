@@ -22,38 +22,58 @@ void cell_death()
 #ifdef DENSITYPROFILE
   int __index;
   //////////////////////////////////
+ #if (defined (RECTANGULAR) || defined (SPHERICAL) )
   // find maximum z and calc current density
   std::fill(dens_curn, dens_curn+dens_length, 0);
   std::fill(dens_curnka, dens_curnka+dens_length, 0);
+ #elif defined (ZYLINDRICAL)
+  // find maximum z and calc current density
+  std::fill(dens_curn, dens_curn+dens_length_r*dens_length_z, 0);
+  std::fill(dens_curnka, dens_curnka+dens_length_r*dens_length_z, 0);
+ #endif
   dens_maxz = dens_p_maxz = -1.;
   dens_minz = dens_p_minz = LZ+1.;
   dens_com_rx = dens_com_ry = dens_com_rz = 0.;
   dens_com_n = 0;
+ #ifdef ZYLINDRICAL
+  dens_maxr = dens_p_maxr = -1.;
+ #endif
   for (i = 0; i < lastcn; ++i)
-    if (_list[i] == -1
+    if (_list[i] == -1	
  #ifdef FIXEDCELLS
                        && _spec[i*_pperc] != fixed_spec
  #endif
  #ifdef PGAS
                        && _spec[i*_pperc] != gas_spec
  #endif
+
                       ) {
- #ifdef RECTANGULAR
+ #if ( defined (RECTANGULAR) || defined (ZYLINDRICAL) )
       if ((_rz[i*_pperc]+_rz[i*_pperc+1])/2. > dens_maxz)
         dens_maxz = (_rz[i*_pperc]+_rz[i*_pperc+1])/2.;
       if ((_rz[i*_pperc]+_rz[i*_pperc+1])/2. < dens_minz)
         dens_minz = (_rz[i*_pperc]+_rz[i*_pperc+1])/2.;
+  #ifdef ZYLINDRICAL
+      if ((NORM(_rx[i*_pperc]-dens_com_rx,_ry[i*_pperc]-dens_com_ry, 0.) + NORM(_rx[i*_pperc+1]-dens_com_rx,_ry[i*_pperc+1]-dens_com_ry, 0.))/2. > dens_maxr) {
+        if((NORM(_rx[i*_pperc]-dens_com_rx,_ry[i*_pperc]-dens_com_ry, 0.) + NORM(_rx[i*_pperc+1]-dens_com_rx,_ry[i*_pperc+1]-dens_com_ry, 0.))/2. < BOXLENGTH_X/2)
+	  dens_maxr = (NORM(_rx[i*_pperc]-dens_com_rx,_ry[i*_pperc]-dens_com_ry, 0.) + NORM(_rx[i*_pperc+1]-dens_com_rx,_ry[i*_pperc+1]-dens_com_ry, 0.))/2.;
+      }
+  #endif
  #endif
       for (k=i*_pperc; k < (i+1)*_pperc; ++k) {
         dens_com_rx += _rx[k];
         dens_com_ry += _ry[k];
         dens_com_rz += _rz[k];
         dens_com_n++;
- #ifdef RECTANGULAR
+ #if ( defined (RECTANGULAR) || defined (ZYLINDRICAL) )
         if (_rz[k] > dens_p_maxz)
           dens_p_maxz = _rz[k];
         if (_rz[k] < dens_p_minz)
           dens_p_minz = _rz[k];
+  #ifdef ZYLINDRICAL
+	if (NORM(_rx[k]-dens_com_rx, _ry[k]-dens_com_ry,0.) > dens_p_maxr)
+	dens_p_maxr = NORM(_rx[k]-dens_com_rx, _ry[k]-dens_com_ry,0.);
+  #endif 
  #endif
       }
     }
@@ -97,9 +117,15 @@ void cell_death()
                        && _spec[i*_pperc] != gas_spec
  #endif
                       ) {
+  #if (defined (RECTANGULAR) || defined (SPHERICAL) )
       __index = GET__INDEX(i, dens_binsize);
       __ASSERT(__index, 0, dens_length, "__index0 in cell_death()");
       dens_curn[__index]++;
+  #elif defined (ZYLINDRICAL)
+      __index = GET__INDEX_P_R(i, dens_binsize_r) + GET__INDEX_P_Z(i, dens_binsize_z)*dens_length_r;
+      __ASSERT(__index, 0, dens_length_r*dens_length_z, "__index0 in cell_death()");
+      dens_curn[__index]++;
+  #endif
     }
 #endif		// ifdef DENSITYPROFILE
 
@@ -112,10 +138,17 @@ void cell_death()
       continue;			// for pgas should improve performance (especially, with high pressure)
     if (drand[0]() < ka[_spec[i*_pperc]]*dt) {
 #ifdef DENSITYPROFILE
+ #if (defined (RECTANGULAR) || defined (SPHERICAL) )
       __index = GET__INDEX(i, dens_binsize);
       __ASSERT(__index, 0, dens_length, "__index1 in cell_death()");
       dens_nka[__index]++;
       dens_curnka[__index]++;
+ #elif defined (ZYLINDRICAL)
+     __index = GET__INDEX_R(i, dens_binsize_r) + GET__INDEX_Z(i,dens_binsize_z)*dens_length_r;
+     __ASSERT(__index, 0, dens_length_z*dens_length_r, "__index1 in cell_death()");
+     dens_nka[__index]++;
+     dens_curnka[__index]++;
+ #endif
 #endif
       ////////////////////////////////
       // delete cell
@@ -124,12 +157,24 @@ void cell_death()
   }
 
 #ifdef DENSITYPROFILE
+ #if (defined (RECTANGULAR) || defined (SPHERICAL) )
   for (i = 0; i < dens_length; ++i)
     if (dens_curn[i] > 0) {
       dens_knmeas[i]++;
       if (dens_curnka[i] > 0)
         dens_ka[i] += (double)dens_curnka[i]/dens_curn[i];
     }
+ #elif defined (ZYLINDRICAL)
+  for (i = 0; i < dens_length_z; ++i) {
+      for (int j = 0; j < dens_length_r; ++j) {
+	  if (dens_curn[j + i*dens_length_r]>0) {
+	      dens_knmeas[j + i*dens_length_r]++;
+	      if (dens_curnka[j + i*dens_length_r] >0)
+		  dens_ka[j + i*dens_length_r] += (double)dens_curnka[j + i*dens_length_r]/dens_curn[j + i*dens_length_r];
+	  }
+      }
+  }
+ #endif
 #endif
 }
 
@@ -151,7 +196,11 @@ void cell_division()
   int __index;
   //////////////////////////////////
   // find maximum z and calc current density (may have changed de to cell death)
+ #if (defined (RECTANGULAR) || defined (SPHERICAL) )
   std::fill(dens_curnkd, dens_curnkd+dens_length, 0);
+ #elif defined (ZYLINDRICAL)
+  std::fill(dens_curnkd, dens_curnkd+dens_length_r*dens_length_z, 0); 
+ #endif
 #endif
 
   for (i = 0; i < tmp_lastcn; ++i) {	// count over cells not particles!
@@ -166,8 +215,13 @@ void cell_division()
     drsq = distsq(i*_pperc, i*_pperc+1);
     if (drsq > rct[_spec[i*_pperc]]*rct[_spec[i*_pperc]]) {
 #ifdef DENSITYPROFILE
+ #if (defined (RECTANGULAR) || defined (SPHERICAL) )
       __index = GET__INDEX(i, dens_binsize);
       __ASSERT(__index, 0, dens_length, "__index1 in cell_division()");
+ #elif defined (ZYLINDRICAL)
+      __index = GET__INDEX_R(i, dens_binsize_r) + GET__INDEX_Z(i, dens_binsize_z)*dens_length_r;
+      __ASSERT(__index, 0, dens_length_r*dens_length_z, "__index1 in cell_division()");
+ #endif
       dens_nkd[__index]++;
       {
         double tmprx  = (_rx[i*_pperc]-_rx[i*_pperc+1])/2.;
@@ -195,9 +249,18 @@ void cell_division()
   }
 
 #ifdef DENSITYPROFILE
+ #if (defined (RECTANGULAR) || defined (SPHERICAL) )
   for (i = 0; i < dens_length; ++i)
     if (dens_curn[i]>0 && dens_curnkd[i]>0.)
       dens_kd[i] += (double)dens_curnkd[i]/dens_curn[i];
+ #elif defined (ZYLINDRICAL)
+  for (i = 0; i < dens_length_z; ++i) {
+      for(int j = 0; j < dens_length_r; ++j) {
+	  if (dens_curn[j + i*dens_length_r]>0 && dens_curnkd[j + i*dens_length_r]>0.)
+	      dens_kd[j + i*dens_length_r] += (double)dens_curnkd[j + i*dens_length_r]/dens_curn[j + i*dens_length_r];
+      }
+  }
+ #endif
 #endif
 
   if (vlist_rebuild) {
