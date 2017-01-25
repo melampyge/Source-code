@@ -6,7 +6,7 @@
 
 #define TIMESTEP 0.001		// time step size (dt)
 
-#define SIMTIME 70		// simulation time
+#define SIMTIME 40		// simulation time
 
 #define INITSIZE 1048576	// initial number of possible cell particles
 #define VLIST_MES 64		// verlet list mean entry size
@@ -21,7 +21,6 @@
 #define RT  1.			// range of dissipative forces
 #define RC  0.00001		// distance at which new cell particles are placed after division
 #define RCT 0.8			// distance threshold for cell division
-#define RZ  0.3			// range of substrate adhesion
 
 #define B 50    		// growth coefficient
 
@@ -30,19 +29,17 @@
 #define GAMMAC 100.
 #define GAMMAT 50.
 #define GAMMAB 0.1
-#define GAMMAS 50.
 
-#define KA 0.			// rate of cell death
+#define KA 0.01			// rate of cell death
 
 #define KBT 0.1			// noise intensity in the tissue
 
 #define F0 2.39566029905288	// repulsive cell-cell potential coefficient
 #define F1 7.5			// attractive cell-cell potential coefficient
-#define FA 7.5			// adhesion to substrate coefficient
 
-#define BOXLENGTH_X 50		// box length in x direction
-#define BOXLENGTH_Y 50
-#define BOXLENGTH_Z 50		// for now only cubic boxes are supported
+#define BOXLENGTH_X 6		// box length in x direction
+#define BOXLENGTH_Y 6
+#define BOXLENGTH_Z 12		// for now only cubic boxes are supported
 
 
 #define OUTDIR        "./"  		// output directory
@@ -54,7 +51,7 @@
 
 #define TRAJDATASTEP 1000		// output trajectory data every ... timesteps
 #define SAVEDATASTEP 1000		// save state every ... timesteps
-#define NUMCELLDATASTEP 1000		// output number of cells every ... timesteps
+#define NUMCELLDATASTEP 100		// output number of cells every ... timesteps
 
 
 #define RNGSEED get_seed()              // get_seed uses /dev/random (better than time())
@@ -101,9 +98,9 @@
 // in which geometry would you like to
 // measure (important for DENSITYPROFILE
 // and PGAS)
-#define RECTANGULAR           // measure in rectangular geometry
+//#define RECTANGULAR           // measure in rectangular geometry
 //#define SPHERICAL               // measure in radial geometry
-
+#define ZYLINDRICAL		// measure in zylindrical geometry 
 
 ////////////////////////////////////
 // enable density profile, division rate and death rate measurement (be careful with PBC)
@@ -116,8 +113,8 @@
 
  /////////////////////////////////////
  // Which coordinate system to use?
- //#define MEASUREINR
- #define MEASUREINS		// distance to (some) front
+ #define MEASUREINR
+ //#define MEASUREINS		// distance to (some) front
 
 
  ////////////////////////////////////
@@ -192,9 +189,9 @@
 ////////////////////////////////////
 // uncomment one of these to implement the according boundary condition
 
-//define PBC		// Periodic boundary condition
-//#define BBC		// Bounce back boundary condition
-#define RBC		// Reflective boundary condition
+//#define PBC		// Periodic boundary condition
+#define BBC		// Bounce back boundary condition
+//#define RBC		// Reflective boundary condition
 //#define HBC		// Hybrid boundary condition, adjust all HBC blocks to your specific needs
 			// (normaly a combination of the 3 above)
 			// default: periodic in x/y and bounce back in z direction
@@ -255,16 +252,13 @@ extern double *r0;
 extern double *rt;
 extern double *rc;
 extern double *rct;
-extern double *rz;
 extern double *b;
 extern double *gammac;
 extern double *gammat;
 extern double *gammab;
-extern double *gammas;
 extern double *ka;
 extern double *f0;
 extern double *f1;
-extern double *fa;
 extern double *m;			// mass of particles
 
 
@@ -331,6 +325,7 @@ extern double *pm_pzL;
 
 
 #ifdef DENSITYPROFILE
+ #if (defined (RECTANGULAR) || defined (SPHERICAL))
 extern int *dens_rhoV;				// density profile
 extern int *dens_rhoVsq;
 extern int *dens_rhoVsqtmp;
@@ -368,6 +363,55 @@ extern double dens_com_rz;			// -"- r_z
 extern long dens_com_n;
 extern double *dens_mean_cell_dr;		// Mean cell "size", i.e. distance between its two particles
 extern double *dens_mean_NN_dr;			// Mean nearest neighbour distance
+
+ #elif defined (ZYLINDRICAL)
+extern int *dens_rhoV;
+extern int *dens_rhoVsq;
+extern int *dens_rhoVsqtmp;
+extern int *dens_nmeas;				// number of measurements at s
+extern int *dens_p_nmeas;
+extern int *dens_knmeas;		// number of measurements for rates kd/ka (meas makes only sense when cells present)
+extern int *dens_nkd;			// number of divisions at s
+extern int *dens_nka;			// number of deaths at s 
+extern double *dens_ka;
+extern double *dens_kd;	
+extern double dens_binsize_z;
+extern double dens_binsize_r;
+extern int dens_length_z;
+extern int dens_length_r;
+extern double dens_maxz;
+extern double dens_maxr;
+extern double dens_mean_maxz;
+extern double dens_mean_maxr;
+extern double dens_lastmean_maxz;
+extern double dens_lastmean_maxr;
+extern double dens_p_maxz;
+extern double dens_p_maxr;
+extern double dens_mean_p_maxz;
+extern double dens_mean_p_maxr;
+extern double dens_lastmean_p_maxz;
+extern double dens_lastmean_p_maxr;
+extern double dens_minz;
+extern double dens_mean_minz;
+extern double dens_lastmean_minz;
+extern double dens_p_minz;
+extern double dens_mean_p_minz;
+extern double dens_lastmean_p_minz;
+extern double *dens_kperp;			// k_d perpendicular to surface
+extern double *dens_kpara;			// k_d parallel to surface
+extern int *dens_curn;		// current number of cells (used for kd/a)
+extern int *dens_curnka;			// current number of cell deaths (used for ka)
+extern int *dens_curnkd;			// current number of cell divisions (used for kd)
+extern double *dens_sq;				// nematic order parameter of division (zz component)
+extern double *dens_cell_sq;			// nematic order parameter of cell alignment (zz component)
+extern double dens_com_rx;			// Center of mass r_x
+extern double dens_com_ry;			// -"- r_y
+extern double dens_com_rz;			// -"- r_z
+extern long dens_com_n;
+extern double *dens_mean_cell_dr;		// Mean cell "size", i.e. distance between its two particles
+extern double *dens_mean_NN_dr;			// Mean nearest neighbour distance
+ #endif
+               
 #ifdef RECTANGULAR
 extern double *flux_vx;				// x component of mean velocity in layer i
 extern double *flux_vy;				// y component of mean velocity in layer i
@@ -378,6 +422,11 @@ extern double *flux_p_vz;			// z component of mean particle velocity in layer i
 #elif defined (SPHERICAL)
 extern double *flux_vr; 			// radial component of mean velocity in layer i
 extern double *flux_p_vr;			// radial component of mean particle velocity in layer i
+#elif defined ZYLINDRICAL
+extern double *flux_vr; 			// radial component of mean velocity in layer i
+extern double *flux_p_vr;			// radial component of mean particle velocity in layer i
+extern double *flux_vz; 			// radial component of mean velocity in layer i
+extern double *flux_p_vz;			// radial component of mean particle velocity in layer i
 #endif
 #ifdef REALFLUX
 extern long *rflux_jz;				// real flux in z direction
@@ -504,12 +553,20 @@ extern char tv_desc[NUM_TIMERS][TIMER_DESC_SIZE];
   #error RECTANGULAR and SPHERICAL are mutually exclusive
 #endif
 
+#if (defined (RECTANGULAR) && defined (ZYLINDRICAL))
+  #error RECTANGULAR and ZYLINDRICAL are mutually exclusive
+#endif
+
+#if (defined (ZYLINDRICAL) && defined (SPHERICAL))
+  #error ZYLINDRICAL and SPHERICAL are mutually exclusive
+#endif
+
 #if (defined (MEASUREINS) && defined (MEASUREINR))
   #error MEASUREINS and MEASUREINR are mutually exclusive
 #endif
 
-#if (!defined (RECTANGULAR) && !defined (SPHERICAL))
-  #error You must either specify RECTANGULAR or SPHERICAL
+#if (!defined (RECTANGULAR) && !defined (SPHERICAL) && !defined(ZYLINDRICAL))
+  #error You must either specify RECTANGULAR or SPHERICAL or ZYLINDRICAL
 #endif
 
 #if (defined (LOCALSTRESS) && defined (PGAS))
